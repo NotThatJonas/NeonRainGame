@@ -28,17 +28,17 @@ class DeckBrain extends Component {
       // })
     }
     )
-    // const shuffledDeck = this.shuffleCards(deckJson);
-    // console.log(shuffledDeck);
+    const shuffledDeck = this.shuffleCards(deckJson);
+    console.log(shuffledDeck);
 
 
-    // this.setState(
-    //   {
-    //     deck: shuffledDeck,
+    this.setState(
+      {
+        deck: shuffledDeck,
  
-    //   },
-    //   this.drawCards
-    // );
+      },
+      this.drawCards
+    );
   }
 
 
