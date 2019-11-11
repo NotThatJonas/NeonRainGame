@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import deckJson from "../../cards.json";
 import Cards from "../cards";
-import Axios from "axios";
 import PlayArea from "../../components/playArea";
 import style from "./style.css";
 class DeckBrain extends Component {
@@ -10,43 +9,20 @@ class DeckBrain extends Component {
     hand: [],
     discard: [],
     playArea: [],
-
     turnEnded: false
-
   };
 
   componentWillMount() {
-
     const shuffledDeck = this.shuffleCards(deckJson);
     console.log(shuffledDeck);
+
     this.setState(
       {
-        deck: shuffledDeck,
+        deck: shuffledDeck
       },
-      // this.saveCards(this.state.deck),
       this.drawCards
     );
   }
-
-  atStartOfBattleGetDeck = deck => {
-    Axios.GET("/api/deck")
-      .then(data => {
-        console.log(data);
-        console.log(data.userData.winCount);  
-        let userDeck=data.userData.deck
-        this.setState({
-          deck:userDeck
-        })
-      })
-      .catch(err => {
-        console.log(err.response);
-        alert("Username doesnt exists or password was wrong")
-      });
-  };
-
-
-
-  
 
   componentDidUpdate(prevprops, prevState) {
     const turnEnded = this.state.turnEnded !== prevState.turnEnded;
@@ -54,8 +30,11 @@ class DeckBrain extends Component {
     if (turnEnded) {
       this.props.readPlayed(this.state.playArea);
       this.discardPlayed();
+      this.drawCards();
+      this.setState({
+        turnEnded: false
+      });
     }
-
   }
 
   toPlay = index => {
@@ -83,7 +62,7 @@ class DeckBrain extends Component {
     this.setState({
       discard: tempDiscard,
       playArea: []
-    }, this.drawCards);
+    });
   };
 
   drawCards = () => {
@@ -112,14 +91,15 @@ class DeckBrain extends Component {
   };
 
   endTurn = () => {
-    let turn = !this.state.turnEnded
     console.log("ending turn");
     this.setState({
-      turnEnded: turn
+      turnEnded: true
     });
+
+    // this.discardPlayed()
   };
 
-  toHand = (index) => {
+  toHand = index => {
     let tempHand = this.state.hand;
     let card = this.state.playArea[index];
     let tempPlay = this.state.playArea;
@@ -132,7 +112,7 @@ class DeckBrain extends Component {
     });
   };
 
-  shuffleCards = (cards) => {
+  shuffleCards = cards => {
     let randomCardsArray = [];
     let originalCards = cards.slice(0);
 
@@ -141,11 +121,12 @@ class DeckBrain extends Component {
       let card = originalCards.splice(randomNumber, 1)[0];
       randomCardsArray.push(card);
     }
+
     return randomCardsArray;
   };
 
   render() {
-    let hand = this.state.hand.map((card, index) => {
+    const hand = this.state.hand.map((card, index) => {
       return (
         <div className="handCard row d-flex justify-content-center">
           <Cards
@@ -159,7 +140,7 @@ class DeckBrain extends Component {
       );
     });
 
-    let playArea = this.state.playArea.map((card, index) => {
+    const playArea = this.state.playArea.map((card, index) => {
       return (
         <div className="playCard row d-flex justify-content-center">
           <Cards
@@ -172,27 +153,16 @@ class DeckBrain extends Component {
         </div>
       );
     });
- 
+
     return (
-      // <div className="nes-container decks is-rounded">
-        <div id="gameArea">
-          <div className="row d-flex justify-content-center">
-            <button
-              className="nes-pointer endTurn neon4 mb-3 nes-btn"
-              onClick={this.endTurn}
-            >
-              End Turn
-            </button>
-          </div>
-          <div className="playArea">{playArea.length ? playArea : null}</div>
-          <div className="handArea">{hand.length ? hand : null}</div>
+      <div id="gameArea">
+        <div className="row d-flex justify-content-center">
+          <button onClick={this.endTurn}>End Turn</button>
         </div>
-      // </div>
-    )
-    ;}
-
-  
-
+        <div className="playArea">{playArea.length ? playArea : null}</div>
+        <div className="handArea">{hand.length ? hand : null}</div>
+      </div>
+    );
+  }
 }
-
 export default DeckBrain;
